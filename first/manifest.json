@@ -1,0 +1,21 @@
+{
+  "visible_filenames": [
+    "main.cpp",
+    "cyber-dojo.sh",
+    "snippets/array_out_of_bounds.cpp",
+    "snippets/bitfield_access.cpp",
+    "snippets/branch_on_uninit_variable.cpp",
+    "snippets/cyclic_dependency.cpp",
+    "snippets/data_race.cpp",
+    "snippets/iterator_invalidation.cpp",
+    "snippets/lock_order.cpp",
+    "snippets/race_on_this.cpp",
+    "snippets/ub_gone_wild.cpp",
+    "snippets/use_after_free.cpp",
+    "snippets/use_after_scope.cpp"
+  ],
+  "filename_extension" : ".cpp",
+  "display_name": "C++ Usergroup, Clang Sanitizers",
+  "image_name": "cyberdojofoundation/clang_with_sanitizers",
+  "runner_choice":"stateless"
+}
