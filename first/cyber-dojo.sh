@@ -5,7 +5,7 @@ export ASAN_OPTIONS=strict_string_checks=1:detect_stack_use_after_return=1:check
 export TSAN_OPTIONS=force_seq_cst_atomics=1
 
 
-CALL="clang++ -lpthread -std=c++17 -fno-omit-frame-pointer -fno-limit-debug-info -Wall -Werror main.cpp"
+CALL="clang++ -g -lpthread -std=c++17 -fno-omit-frame-pointer -fno-limit-debug-info -Wall -Werror main.cpp"
 
 function build_release() {
   echo No Sanitizer Release Build:

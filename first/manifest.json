@@ -12,7 +12,9 @@
     "snippets/race_on_this.cpp",
     "snippets/ub_gone_wild.cpp",
     "snippets/use_after_free.cpp",
-    "snippets/use_after_scope.cpp"
+    "snippets/use_after_scope.cpp",
+    "snippets/c_strcpy.cpp",
+    "snippets/c_memcmp.cpp"
   ],
   "filename_extension" : ".cpp",
   "display_name": "C++ Usergroup, Clang Sanitizers",
