@@ -1,0 +1,3 @@
+base for the sanitizers image
+
+docker build . -t adrianimboden/cppusergroup-sanitizers-hands-on-base

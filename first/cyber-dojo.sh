@@ -33,7 +33,9 @@ function build_tsan() {
 
 function build_msan() {
   echo Memory Sanitizer:
-  ${CALL} -O0 -fsanitize=memory -fsanitize-memory-track-origins=2  -nostdinc++ -isystem /usr/msan/include/c++/v1/ -nostdlib++ -L/usr/msan/lib -lc++ -Wl,-rpath,/usr/msan/lib 2>&1 && ./a.out 2>&1
+  #${CALL} -O0 -fsanitize=memory -fsanitize-memory-track-origins=2  -nostdinc++ -isystem /usr/msan/include/c++/v1/ -nostdlib++ -L/usr/msan/lib -lc++ -Wl,-rpath,/usr/msan/lib 2>&1 && ./a.out 2>&1
+  #not using instrumented libc++ because of unknown bug
+  ${CALL} -O0 -fsanitize=memory -fsanitize-memory-track-origins=2 2>&1 && ./a.out 2>&1
   echo -ne \\n\\n
 }
 

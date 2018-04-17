@@ -1,0 +1,120 @@
+\section{Intro}
+
+\begin{frame}[fragile]
+\frametitle{Toolchain}
+\begin{itemize}
+  \item LLVM/Clang 6.0
+  \item Linux
+\end{itemize}
+Compile command:
+  \begin{Verbatim}
+clang++ -g -std=c++17 -fno-omit-frame-pointer \
+  -fno-limit-debug-info -Wall -Werror main.cpp
+  \end{Verbatim}
+\end{frame}
+
+\section{Sanitizers}
+\subsection{Address Sanitizer}
+\begin{frame}[fragile]
+  \frametitle{Address Sanitizer}
+  \inputminted[fontsize=\small,linenos]{cpp}{snippets/address.cpp}
+\pause
+  \begin{Verbatim}[fontsize=\tiny]
+ERROR: AddressSanitizer: SEGV on unknown address 0x000000000000 (pc 0x00000031abb3 bp 0x7ffc72cc3300
+  sp 0x7ffc72cc32e0 T0)
+The signal is caused by a WRITE memory access.
+Hint: address points to the zero page.
+  #0 0x31abb2 in foo(int*) /sandboxes/zebra/main.cpp:3:27
+  #1 0x31abcc in main /sandboxes/zebra/main.cpp:5:14
+  #2 0x7fd627fc51c0 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x211c0)
+  #3 0x248029 in _start (/sandboxes/zebra/a.out+0x248029)
+\end{Verbatim}
+\end{frame}
+
+\subsection{Thread Sanitizer}
+\begin{frame}[fragile]
+\frametitle{Thread Sanitizer}
+  \inputminted[fontsize=\scriptsize,linenos]{cpp}{snippets/thread.cpp}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Thread Sanitizer}
+  \begin{Verbatim}[fontsize=\tiny]
+WARNING: ThreadSanitizer: data race (pid=50)
+Write of size 4 at 0x7fff3c18d66c by thread T2:
+  #0 main::$_1::operator()() const /sandboxes/zebra/main.cpp:8:31 (a.out+0x2d3945)
+  #1 _ZNSt3__18__invokeIZ4mainE3$_1JEEEDTclclsr3std3__1E7forwardIT_Efp_Espclsr3std3__1E7forwardIT0_Efp0_EEEOS2_DpOS3_ /usr/tsan/include/c++/v1/type_traits:4482:1 (a.out+0x2d362d)
+  #2 void std::__1::__thread_execute<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct> >, main::$_1>(std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct> >, main::$_1>&, std::__1::__tuple_indices<>) /usr/tsan/include/c++/v1/thread:342 (a.out+0x2d362d)
+  #3 void* std::__1::__thread_proxy<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct> >, main::$_1> >(void*) /usr/tsan/include/c++/v1/thread:352 (a.out+0x2d362d)
+
+Previous write of size 4 at 0x7fff3c18d66c by thread T1:
+  #0 main::$_0::operator()() const /sandboxes/zebra/main.cpp:7:31 (a.out+0x2d32f5)
+  #1 _ZNSt3__18__invokeIZ4mainE3$_0JEEEDTclclsr3std3__1E7forwardIT_Efp_Espclsr3std3__1E7forwardIT0_Efp0_EEEOS2_DpOS3_ /usr/tsan/include/c++/v1/type_traits:4482:1 (a.out+0x2d2fdd)
+  #2 void std::__1::__thread_execute<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct> >, main::$_0>(std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct> >, main::$_0>&, std::__1::__tuple_indices<>) /usr/tsan/include/c++/v1/thread:342 (a.out+0x2d2fdd)
+  #3 void* std::__1::__thread_proxy<std::__1::tuple<std::__1::unique_ptr<std::__1::__thread_struct, std::__1::default_delete<std::__1::__thread_struct> >, main::$_0> >(void*) /usr/tsan/include/c++/v1/thread:352 (a.out+0x2d2fdd)
+
+Location is stack of main thread.
+
+Location is global '??' at 0x7fff3c16e000 ([stack]+0x00000001f66c)
+
+Thread T2 (tid=53, running) created by main thread at:
+  #0 pthread_create llvm/projects/compiler-rt/lib/tsan/rtl/tsan_interceptors.cc:992:3 (a.out+0x26a485)
+  #1 std::__1::__libcpp_thread_create(unsigned long*, void* (*)(void*), void*) /usr/tsan/include/c++/v1/__threading_support:327:10 (a.out+0x2d26f2)
+  #2 std::__1::thread::thread<main::$_1, , void>(main::$_1&&) /usr/tsan/include/c++/v1/thread:368 (a.out+0x2d26f2)
+  #3 main /sandboxes/zebra/main.cpp:8:11 (a.out+0x2d12b3)
+
+Thread T1 (tid=52, finished) created by main thread at:
+  #0 pthread_create llvm/projects/compiler-rt/lib/tsan/rtl/tsan_interceptors.cc:992:3 (a.out+0x26a485)
+  #1 std::__1::__libcpp_thread_create(unsigned long*, void* (*)(void*), void*) /usr/tsan/include/c++/v1/__threading_support:327:10 (a.out+0x2d1a02)
+  #2 std::__1::thread::thread<main::$_0, , void>(main::$_0&&) /usr/tsan/include/c++/v1/thread:368 (a.out+0x2d1a02)
+  #3 main /sandboxes/zebra/main.cpp:7:11 (a.out+0x2d1299)
+
+  \end{Verbatim}
+\end{frame}
+
+\subsection{Leak Sanitizer}
+\begin{frame}[fragile]
+\frametitle{Leak Sanitizer}
+  \inputminted[fontsize=\scriptsize,linenos]{cpp}{snippets/leak.cpp}
+\pause
+  \begin{Verbatim}[fontsize=\tiny]
+ERROR: LeakSanitizer: detected memory leaks
+
+Direct leak of 4 byte(s) in 1 object(s) allocated from:
+ #0 0x317ce2 in operator new(unsigned long) llvm/projects/compiler-rt/lib/asan/asan_new_delete.cc:92:3
+ #1 0x31ac66 in std::__1::__unique_if<int>::__unique_single std::__1::make_unique<int>() /usr/include/c++/v1/memory:3078:28
+ #2 0x31ac66 in main /sandboxes/zebra/main.cpp:6
+ #3 0x7f2f6f19b1c0 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x211c0)
+
+SUMMARY: AddressSanitizer: 4 byte(s) leaked in 1 allocation(s).
+  \end{Verbatim}
+\end{frame}
+
+\subsection{Undefined Behavior Sanitizer}
+\begin{frame}[fragile]
+\frametitle{Undefined Behavior Sanitizer}
+  \inputminted[fontsize=\scriptsize,linenos]{cpp}{snippets/ub.cpp}
+\pause
+  \begin{Verbatim}[fontsize=\tiny]
+main.cpp:7:9: runtime error: reference binding to null pointer of type 'int'
+  #0 0x22fd5e in main /sandboxes/zebra/main.cpp:7:5
+  #1 0x7f05d25ec1c0 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x211c0)
+  #2 0x211029 in _start (/sandboxes/zebra/a.out+0x211029)
+  \end{Verbatim}
+\end{frame}
+
+\subsection{Memory Sanitizer}
+\begin{frame}[fragile]
+\frametitle{Memory Sanitizer}
+  \inputminted[fontsize=\scriptsize,linenos]{cpp}{snippets/memory.cpp}
+\pause
+  \begin{Verbatim}[fontsize=\tiny]
+WARNING: MemorySanitizer: use-of-uninitialized-value
+  #0 0x2b73df in main /sandboxes/zebra/main.cpp:10:5
+  #1 0x7fca89b5e1c0 in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x211c0)
+  #2 0x243029 in _start (/sandboxes/zebra/a.out+0x243029)
+
+Uninitialized value was created by an allocation of 'y' in the stack frame of function 'main'
+  #0 0x2b7210 in main /sandboxes/zebra/main.cpp:9
+  \end{Verbatim}
+\end{frame}
